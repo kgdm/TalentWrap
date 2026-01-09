@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile - Triumph Consultants</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container" style="max-width: 800px;">
+        <div class="card">
+            <div class="logo-placeholder">Triumph Consultants</div>
+            <h1>Candidate Profile</h1>
+            <form method="POST" action="{{ url_for('form') }}" enctype="multipart/form-data">
+
+                <div class="form-grid">
+                    <!-- 1. Candidate Name -->
+                    <div class="form-group">
+                        <label>1. Candidate Name</label>
+                        <input type="text" name="candidate_name" required>
+                    </div>
+
+                    <!-- 2. Current Location -->
+                    <div class="form-group">
+                        <label>2. Current location </label>
+                        <input type="text" name="location" required>
+                    </div>
+
+                    <!-- 3. Age -->
+                    <div class="form-group">
+                        <label>3. Age</label>
+                        <input type="number" name="age" required>
+                    </div>
+
+                    <!-- 4. Education Qualification -->
+                    <div class="form-group">
+                        <label>4. Education Qualification</label>
+                        <input type="text" name="education" required>
+                    </div>
+
+                    <!-- 5. Industry Exposure -->
+                    <div class="form-group">
+                        <label>5. Industry Exposure</label>
+                        <input type="text" name="industry" required>
+                    </div>
+
+                    <!-- 6. Current Company -->
+                    <div class="form-group">
+                        <label>6. Current Company</label>
+                        <input type="text" name="current_company" required>
+                    </div>
+
+                    <!-- 7. Product Selling -->
+                    <div class="form-group">
+                        <label>7. Product Selling</label>
+                        <input type="text" name="product_selling" required>
+                    </div>
+
+                    <!-- 8. Ticket Size -->
+                    <div class="form-group">
+                        <label>8. Ticket Size</label>
+                        <input type="text" name="ticket_size" required>
+                    </div>
+
+                    <!-- 9. Sales Target -->
+                    <div class="form-group full-width">
+                        <label>9. Current Company’s Annual Sales Target (April-Mar ’25)</label>
+                        <input type="text" name="sales_target" required>
+                    </div>
+
+                    <!-- 10. Achieved -->
+                    <div class="form-group full-width">
+                        <label>10. Achieved (April-Mar’25)</label>
+                        <input type="text" name="sales_achieved" required>
+                    </div>
+
+                    <!-- 11. Communication -->
+                    <div class="form-group">
+                        <label>11. Communication</label>
+                        <select name="communication"
+                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius);">
+                            <option value="Average">Average</option>
+                            <option value="Good">Good</option>
+                            <option value="Excellent">Excellent</option>
+                        </select>
+                    </div>
+
+                    <!-- 12. Reason for job change -->
+                    <div class="form-group full-width">
+                        <label>12. Reason for the job change</label>
+                        <textarea name="reason_change" rows="2" required></textarea>
+                    </div>
+
+                    <!-- 13. Total Experience -->
+                    <div class="form-group">
+                        <label>13. Total Experience</label>
+                        <input type="text" name="total_exp" required>
+                    </div>
+
+                    <!-- 14. Current Salary -->
+                    <div class="form-group">
+                        <label>14. Current salary(Per month)</label>
+                        <input type="text" name="current_salary" required>
+                    </div>
+
+                    <!-- 15. Expected Salary -->
+                    <div class="form-group">
+                        <label>15. Expected Salary (Per month)</label>
+                        <input type="text" name="expected_salary" required>
+                    </div>
+
+                    <!-- 16. Notice Period -->
+                    <div class="form-group">
+                        <label>16. Notice Period</label>
+                        <input type="text" name="notice_period" required>
+                    </div>
+                </div>
+
+                <!-- File Upload -->
+                <h3 style="margin-top: 2rem;">Resume Document</h3>
+                <div class="form-group">
+                    <label>Upload Resume (PDF, DOCX, Image)</label>
+                    <input type="file" name="resume_file" accept=".pdf,.docx,.doc,.jpg,.jpeg,.png" required>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                        Word docs will be converted. PDF recommended.
+                    </p>
+                </div>
+
+                <button type="submit" style="margin-top: 1rem;">Generate Profile PDF</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

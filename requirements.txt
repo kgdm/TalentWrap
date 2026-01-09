@@ -1,0 +1,5 @@
+flask
+reportlab
+pypdf
+img2pdf
+werkzeug
