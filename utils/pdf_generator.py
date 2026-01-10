@@ -8,100 +8,133 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as ReportLabImage
 from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+
+# Register Arial (using Liberation Sans as replacement in Linux)
+try:
+    # Regular
+    font_path = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+    if os.path.exists(font_path):
+        pdfmetrics.registerFont(TTFont('Arial', font_path))
+    else:
+        pdfmetrics.registerFont(TTFont('Arial', 'Helvetica'))
+    
+    # Bold
+    font_bold_path = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+    if os.path.exists(font_bold_path):
+        pdfmetrics.registerFont(TTFont('Arial-Bold', font_bold_path))
+    else:
+        pdfmetrics.registerFont(TTFont('Arial-Bold', 'Helvetica-Bold'))
+except Exception:
+    pass
 
 def generate_summary_pdf(data, output_path):
     """
     Generates a PDF summary matching the specific table layout.
     """
-    doc = SimpleDocTemplate(output_path, pagesize=letter)
+    # Set small margins to allow more content on the first page
+    doc = SimpleDocTemplate(
+        output_path, 
+        pagesize=letter,
+        topMargin=0.3*inch,
+        bottomMargin=0.3*inch,
+        leftMargin=0.3*inch,
+        rightMargin=0.3*inch
+    )
     story = []
     styles = getSampleStyleSheet()
 
-    # 1. Header (Logo)
-    logo_path = os.path.abspath("static/images/logo.jpg")
-    if os.path.exists(logo_path):
-        # Match create_overlay dimensions for consistency
-        # Width 1.5 inch, Height 0.8 inch
-        im = ReportLabImage(logo_path, width=1.5*inch, height=0.8*inch, kind='proportional')
-        im.hAlign = 'LEFT'
-        story.append(im)
-    else:
-        # Fallback if logo missing
-        header_style = ParagraphStyle(
-            'Header',
-            parent=styles['Heading1'],
-            fontSize=24,
-            textColor=colors.HexColor('#2563eb'),
-            alignment=0, # Left
-            spaceAfter=20
-        )
-        story.append(Paragraph("Triumph Consultants", header_style))
+    # 1. Header Space (Header is now handled by overlay)
+    # Removed spacer to minimize empty space before title
     
-    story.append(Spacer(1, 20))
-
     # Title: PROFILE SUMMARY
     title_style = ParagraphStyle(
         'ProfileSummary',
         parent=styles['Heading2'],
-        fontSize=14,
+        fontSize=16,
         alignment=1, # Center
-        spaceAfter=10,
+        spaceAfter=5,
         fontName='Helvetica-Bold',
         textColor=colors.black
     )
     story.append(Paragraph("PROFILE SUMMARY", title_style))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 5))
 
     # 2. Data Table
-    # Columns: S.No, Field Name, Details
+    # Columns: SNO, Evaluation Criteria, Detail
     table_data = [
-        ["S.No", "Field", "Details"] # Header Row
+        ["SNO", "Evaluation Criteria", "Detail"] # Header Row
     ]
+
+    # Custom style for table content to increase font size
+    table_content_style = ParagraphStyle(
+        'TableContent',
+        parent=styles['BodyText'],
+        fontSize=12,
+        leading=13
+    )
 
     # Field Mapping (Order matters)
-    fields = [
+    all_fields = [
         ("1", "Candidate Name", data.get('candidate_name', '')),
-        ("2", "Current location", data.get('location', '')),
-        ("3", "Age", data.get('age', '')),
-        ("4", "Education Qualification", data.get('education', '')),
-        ("5", "Industry Exposure", data.get('industry', '')),
-        ("6", "Current Company", data.get('current_company', '')),
-        ("7", "Product Selling", data.get('product_selling', '')),
-        ("8", "Ticket Size", data.get('ticket_size', '')),
-        ("9", "Current Company’s Annual\nSales Target (April-Mar ’25)", data.get('sales_target', '')),
-        ("10", "Achieved (April-Mar’25)", data.get('sales_achieved', '')),
-        ("11", "Communication", data.get('communication', '')),
-        ("12", "Reason for the job change", data.get('reason_change', '')),
-        ("13", "Total Experience", data.get('total_exp', '')),
-        ("14", "Current salary(Per month)", data.get('current_salary', '')),
-        ("15", "Expected Salary (Per month)", data.get('expected_salary', '')),
-        ("16", "Notice Period", data.get('notice_period', ''))
+        ("2", "Department/Function", data.get('department', '')),
+        ("3", "Phone No", data.get('phone', '')),
+        ("4", "Email", data.get('email', '')),
+        ("5", "Current location", data.get('location', '')),
+        ("6", "Age", data.get('age', '')),
+        ("7", "Education Qualification", data.get('education', '')),
+        ("8", "Technical Expertise", data.get('tech_expertise', '')),
+        ("9", "Industry Exposure", data.get('industry', '')),
+        ("10", "Current Company", data.get('current_company', '')),
+        ("11", "Product Selling", data.get('product_selling', '')),
+        ("12", "Ticket Size", data.get('ticket_size', '')),
+        ("13", "Current Company’s Annual\nSales Target", data.get('sales_target', '')),
+        ("14", "Achieved Sales Target", data.get('sales_achieved', '')),
+        ("15", "Communication", data.get('communication', '')),
+        ("16", "Reason for the job change", data.get('reason_change', '')),
+        ("17", "Total Experience", data.get('total_exp', '')),
+        ("18", "Current salary(Per month)", data.get('current_salary', '')),
+        ("19", "Expected Salary (Per month)", data.get('expected_salary', '')),
+        ("20", "Notice Period", data.get('notice_period', '')),
+        ("21", "Remarks if any", data.get('remarks', ''))
     ]
 
-    for sno, label, value in fields:
+    # Filter out empty fields (except for required ones, but here we just check if value exists)
+    # We re-number them based on visible fields
+    visible_fields = []
+    counter = 1
+    for _, label, value in all_fields:
+        if value and str(value).strip():
+            visible_fields.append((str(counter), label, value))
+            counter += 1
+
+    for sno, label, value in visible_fields:
         # Wrap text
-        label_p = Paragraph(label, styles['BodyText'])
-        value_p = Paragraph(value, styles['BodyText'])
+        label_p = Paragraph(label, table_content_style)
+        value_p = Paragraph(str(value), table_content_style)
         table_data.append([sno, label_p, value_p])
 
     # Table Styling
-    # Col widths: S.No (0.5), Field (2.5), Details (4.0)
-    t = Table(table_data, colWidths=[0.5*inch, 2.5*inch, 4.0*inch])
+    # Col widths: SNO (0.5), Evaluation Criteria (3.0), Detail (3.5)
+    t = Table(table_data, colWidths=[0.5*inch, 3*inch, 3.5*inch])
     t.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('BACKGROUND', (0, 0), (-1, 0), colors.whitesmoke), # Header bg
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('ALIGN', (0, 0), (0, -1), 'CENTER'), # Center S.No
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('PADDING', (0, 0), (-1, -1), 6),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('ALIGN', (0, 0), (0, -1), 'CENTER'), # Center SNO
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 7),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 7), # Optimized to fit 21 rows on one page
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
     ]))
     story.append(t)
 
-    # Footer
-    story.append(Spacer(1, 30))
-    footer = Paragraph("Generated by Triumph Consultants System", ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, alignment=1, textColor=colors.gray))
-    story.append(footer)
-
+    # Footer (Now handled by overlay)
+    # story.append(Spacer(1, 30))
+    
     doc.build(story)
 
 def convert_to_pdf(input_path, output_path):
@@ -167,9 +200,17 @@ def create_overlay(output_path):
         c.drawString(30, height - 50, "Triumph Consultants")
 
     # Footer
-    c.setFont("Helvetica", 8)
-    c.setFillColor(colors.gray)
-    c.drawCentredString(width / 2.0, 30, "Generated by Triumph Consultants System")
+    footer_text = "Triumph consultants"
+    # Use Arial-Bold for a bolder look
+    c.setFont("Arial-Bold", 13)
+    c.setFillColor(colors.HexColor('#222222')) # Grayish black
+    c.setStrokeColor(colors.HexColor('#00008B')) # Darker Blue underline
+    c.setLineWidth(3) # 3/4th of 5.0pt as requested
+    
+    text_width = c.stringWidth(footer_text, "Arial-Bold", 13)
+    c.drawString(30, 30, footer_text)
+    # Draw the underline slightly below the text
+    c.line(30, 24, 30 + text_width, 24) 
     
     c.save()
 
@@ -205,7 +246,9 @@ def merge_pdfs(summary_path, resume_path, output_path):
             new_page = writer.add_blank_page(width=page.mediabox.width, height=page.mediabox.height)
             
             # Apply transformation to the content page
-            op = Transformation().scale(0.75).translate(tx=76.5, ty=80)
+            # Set scale to 0.83 and ty to 35 to add space after header while fitting 21 rows
+            # tx=52 centers the 0.83 scaled content (612 - (612*0.83))/2 = 52.02
+            op = Transformation().scale(0.83).translate(tx=52, ty=35)
             page.add_transformation(op)
             
             # Merge scaled content
@@ -225,10 +268,9 @@ def merge_pdfs(summary_path, resume_path, output_path):
     # The user said "Every page". 
     # Let's apply the overlay ONLY to the resume pages.
     
-    # Add Summary (As Is)
+    # Add Summary (With Overlay and Scaling)
     reader_summary = PdfReader(summary_path)
-    for page in reader_summary.pages:
-        writer.add_page(page)
+    add_pages_with_overlay(reader_summary)
 
     # Add Resume (With Overlay and Scaling)
     reader_resume = PdfReader(resume_path)

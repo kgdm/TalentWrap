@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from utils.pdf_generator import generate_summary_pdf, convert_to_pdf, merge_pdfs
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'  # Change this in production
+app.secret_key = os.environ.get('SECRET_KEY', 'supersecretkey')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
 
@@ -20,7 +20,9 @@ def index():
 def login():
     if request.method == 'POST':
         password = request.form.get('password')
-        if password == 'admin':  # Simple password for demo
+        # Use environment variable for password, fallback to 'admin'
+        correct_password = os.environ.get('APP_PASSWORD', 'admin')
+        if password == correct_password:
             session['logged_in'] = True
             return redirect(url_for('form'))
         else:
@@ -37,9 +39,13 @@ def form():
             # 1. Collect Form Data
             form_data = {
                 'candidate_name': request.form.get('candidate_name'),
+                'department': request.form.get('department'),
+                'phone': request.form.get('phone'),
+                'email': request.form.get('email'),
                 'location': request.form.get('location'),
                 'age': request.form.get('age'),
                 'education': request.form.get('education'),
+                'tech_expertise': request.form.get('tech_expertise'),
                 'industry': request.form.get('industry'),
                 'current_company': request.form.get('current_company'),
                 'product_selling': request.form.get('product_selling'),
@@ -51,7 +57,8 @@ def form():
                 'total_exp': request.form.get('total_exp'),
                 'current_salary': request.form.get('current_salary'),
                 'expected_salary': request.form.get('expected_salary'),
-                'notice_period': request.form.get('notice_period')
+                'notice_period': request.form.get('notice_period'),
+                'remarks': request.form.get('remarks')
             }
 
             # 2. Handle File Upload

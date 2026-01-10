@@ -23,63 +23,99 @@
                         <input type="text" name="candidate_name" required>
                     </div>
 
-                    <!-- 2. Current Location -->
+                    <!-- New: Department/Function -->
                     <div class="form-group">
-                        <label>2. Current location </label>
+                        <label>2. Department/Function</label>
+                        <input type="text" name="department" required>
+                    </div>
+
+                    <!-- New: Phone No -->
+                    <div class="form-group">
+                        <label>3. Phone No</label>
+                        <input type="text" name="phone" required>
+                    </div>
+
+                    <!-- New: Email -->
+                    <div class="form-group">
+                        <label>4. Email</label>
+                        <input type="email" name="email" required>
+                    </div>
+
+                    <!-- 2. Current Location (Renumbered) -->
+                    <div class="form-group">
+                        <label>5. Current location</label>
                         <input type="text" name="location" required>
                     </div>
 
-                    <!-- 3. Age -->
+                    <!-- 3. Age (Renumbered) -->
                     <div class="form-group">
-                        <label>3. Age</label>
+                        <label>6. Age</label>
                         <input type="number" name="age" required>
                     </div>
 
-                    <!-- 4. Education Qualification -->
+                    <!-- 4. Education Qualification (Renumbered) -->
                     <div class="form-group">
-                        <label>4. Education Qualification</label>
+                        <label>7. Education Qualification</label>
                         <input type="text" name="education" required>
                     </div>
 
-                    <!-- 5. Industry Exposure -->
+                    <!-- New: Technical Expertise -->
                     <div class="form-group">
-                        <label>5. Industry Exposure</label>
+                        <label>8. Technical Expertise</label>
+                        <input type="text" name="tech_expertise" required>
+                    </div>
+
+                    <!-- 5. Industry Exposure (Renumbered) -->
+                    <div class="form-group">
+                        <label>9. Industry Exposure</label>
                         <input type="text" name="industry" required>
                     </div>
 
-                    <!-- 6. Current Company -->
+                    <!-- 6. Current Company (Renumbered) -->
                     <div class="form-group">
-                        <label>6. Current Company</label>
+                        <label>10. Current Company</label>
                         <input type="text" name="current_company" required>
                     </div>
 
-                    <!-- 7. Product Selling -->
+                    <!-- Sales Fields Toggle -->
+                    <div class="form-group full-width" style="margin-top: 1rem; margin-bottom: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="toggleSales" onchange="toggleSalesFields()" style="width: auto;">
+                            <strong>Include Sales/Target Details? (Optional)</strong>
+                        </label>
+                    </div>
+
+                    <div id="salesFields" style="display: none; width: 100%; grid-column: 1 / -1;">
+                        <div class="form-grid" style="padding: 0; margin: 0;">
+                            <!-- 7. Product Selling -->
+                            <div class="form-group">
+                                <label>11. Product Selling</label>
+                                <input type="text" name="product_selling">
+                            </div>
+
+                            <!-- 8. Ticket Size -->
+                            <div class="form-group">
+                                <label>12. Ticket Size</label>
+                                <input type="text" name="ticket_size">
+                            </div>
+
+                            <!-- 9. Sales Target -->
+                            <div class="form-group full-width">
+                                <label>13. Current Company’s Annual Sales Target </label>
+                                <input type="text" name="sales_target">
+                            </div>
+
+                            <!-- 10. Achieved -->
+                            <div class="form-group full-width">
+                                <label>14. Achieved Sales Target </label>
+                                <input type="text" name="sales_achieved">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 11. Communication (Renumbered) -->
                     <div class="form-group">
-                        <label>7. Product Selling</label>
-                        <input type="text" name="product_selling" required>
-                    </div>
-
-                    <!-- 8. Ticket Size -->
-                    <div class="form-group">
-                        <label>8. Ticket Size</label>
-                        <input type="text" name="ticket_size" required>
-                    </div>
-
-                    <!-- 9. Sales Target -->
-                    <div class="form-group full-width">
-                        <label>9. Current Company’s Annual Sales Target (April-Mar ’25)</label>
-                        <input type="text" name="sales_target" required>
-                    </div>
-
-                    <!-- 10. Achieved -->
-                    <div class="form-group full-width">
-                        <label>10. Achieved (April-Mar’25)</label>
-                        <input type="text" name="sales_achieved" required>
-                    </div>
-
-                    <!-- 11. Communication -->
-                    <div class="form-group">
-                        <label>11. Communication</label>
+                        <label>15. Communication</label>
                         <select name="communication"
                             style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius);">
                             <option value="Average">Average</option>
@@ -88,36 +124,50 @@
                         </select>
                     </div>
 
-                    <!-- 12. Reason for job change -->
+                    <!-- 12. Reason for job change (Renumbered) -->
                     <div class="form-group full-width">
-                        <label>12. Reason for the job change</label>
+                        <label>16. Reason for the job change</label>
                         <textarea name="reason_change" rows="2" required></textarea>
                     </div>
 
-                    <!-- 13. Total Experience -->
+                    <!-- 13. Total Experience (Renumbered) -->
                     <div class="form-group">
-                        <label>13. Total Experience</label>
+                        <label>17. Total Experience</label>
                         <input type="text" name="total_exp" required>
                     </div>
 
-                    <!-- 14. Current Salary -->
+                    <!-- 14. Current Salary (Renumbered) -->
                     <div class="form-group">
-                        <label>14. Current salary(Per month)</label>
+                        <label>18. Current salary(Per month)</label>
                         <input type="text" name="current_salary" required>
                     </div>
 
-                    <!-- 15. Expected Salary -->
+                    <!-- 15. Expected Salary (Renumbered) -->
                     <div class="form-group">
-                        <label>15. Expected Salary (Per month)</label>
+                        <label>19. Expected Salary (Per month)</label>
                         <input type="text" name="expected_salary" required>
                     </div>
 
-                    <!-- 16. Notice Period -->
+                    <!-- 16. Notice Period (Renumbered) -->
                     <div class="form-group">
-                        <label>16. Notice Period</label>
+                        <label>20. Notice Period</label>
                         <input type="text" name="notice_period" required>
                     </div>
+
+                    <!-- New: Remarks (Optional) -->
+                    <div class="form-group full-width">
+                        <label>21. Remarks if any (Optional)</label>
+                        <textarea name="remarks" rows="2"></textarea>
+                    </div>
                 </div>
+
+                <script>
+                    function toggleSalesFields() {
+                        const checkBox = document.getElementById("toggleSales");
+                        const salesDiv = document.getElementById("salesFields");
+                        salesDiv.style.display = checkBox.checked ? "block" : "none";
+                    }
+                </script>
 
                 <!-- File Upload -->
                 <h3 style="margin-top: 2rem;">Resume Document</h3>
