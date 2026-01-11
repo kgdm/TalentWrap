@@ -231,24 +231,30 @@ def merge_pdfs(summary_path, resume_path, output_path):
 
     # Helper to process and add pages
     def add_pages_with_overlay(reader):
+        target_w, target_h = 612, 792 # Letter size
         for page in reader.pages:
-            # Scale down content to 75% to fit safely between header and footer
-            # Letter size is 612x792
-            # 0.75 scale -> ~459x594
-            # Margins: 
-            #   Top safe area: Header ends at ~height-90. Let's leave space.
-            #   Bottom safe area: Footer is at 30.
-            #   We center horizontally: (612 - 459)/2 = 76.5
-            #   We position vertically: Start above footer. Let's say y=80.
-            #   Top of content = 80 + 594 = 674. Header is at >700. Safe.
+            # Create a blank Letter-sized page
+            new_page = writer.add_blank_page(width=target_w, height=target_h)
             
-            # Create a blank page of the same size
-            new_page = writer.add_blank_page(width=page.mediabox.width, height=page.mediabox.height)
+            # Original dimensions and origin
+            orig_w = float(page.mediabox.width)
+            orig_h = float(page.mediabox.height)
+            orig_left = float(page.mediabox.left)
+            orig_bottom = float(page.mediabox.bottom)
+
+            # 1. Normalize origin to (0,0)
+            page.add_transformation(Transformation().translate(tx=-orig_left, ty=-orig_bottom))
             
-            # Apply transformation to the content page
-            # Set scale to 0.83 and ty to 35 to add space after header while fitting 21 rows
-            # tx=52 centers the 0.83 scaled content (612 - (612*0.83))/2 = 52.02
-            op = Transformation().scale(0.83).translate(tx=52, ty=35)
+            # 2. Calculate scale to fit width (maintaining user's 0.83 proportion)
+            # This ensures that even if the input is A4 or other sizes, it scales to the same width as the summary
+            scale_factor = 0.83 * (target_w / orig_w)
+            
+            # 3. Calculate tx to center horizontally
+            tx = (target_w - (orig_w * scale_factor)) / 2
+            ty = 35 # User's preferred vertical position
+            
+            # Apply transformation
+            op = Transformation().scale(scale_factor).translate(tx=tx, ty=ty)
             page.add_transformation(op)
             
             # Merge scaled content
