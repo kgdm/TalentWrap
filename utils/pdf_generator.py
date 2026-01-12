@@ -126,7 +126,7 @@ def generate_summary_pdf(data, output_path):
         ('ALIGN', (0, 0), (0, -1), 'CENTER'), # Center SNO
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('TOPPADDING', (0, 0), (-1, -1), 7),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 7), # Optimized to fit 21 rows on one page
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 7), # Reverted to previous stable value
         ('LEFTPADDING', (0, 0), (-1, -1), 10),
         ('RIGHTPADDING', (0, 0), (-1, -1), 10),
     ]))
@@ -230,8 +230,13 @@ def merge_pdfs(summary_path, resume_path, output_path):
     overlay_page = reader_overlay.pages[0]
 
     # Helper to process and add pages
-    def add_pages_with_overlay(reader):
+    def add_pages_with_overlay(reader, base_scale=0.83, ty_val=35):
         target_w, target_h = 612, 792 # Letter size
+        # Safe area: 
+        # Bottom: ty_val (e.g., 45)
+        # Top: target_h - 110 (e.g., 682) to stay well below logo
+        safe_h = (target_h - 110) - ty_val 
+
         for page in reader.pages:
             # Create a blank Letter-sized page
             new_page = writer.add_blank_page(width=target_w, height=target_h)
@@ -245,13 +250,18 @@ def merge_pdfs(summary_path, resume_path, output_path):
             # 1. Normalize origin to (0,0)
             page.add_transformation(Transformation().translate(tx=-orig_left, ty=-orig_bottom))
             
-            # 2. Calculate scale to fit width (maintaining user's 0.83 proportion)
-            # This ensures that even if the input is A4 or other sizes, it scales to the same width as the summary
-            scale_factor = 0.83 * (target_w / orig_w)
+            # 2. Calculate scale factor
+            # Scale to fit width (user's preferred proportion)
+            scale_w = base_scale * (target_w / orig_w)
+            # Scale to fit height (stay within safe_h)
+            scale_h = safe_h / orig_h
+            
+            # Use the smaller of the two to ensure it fits both ways
+            scale_factor = min(scale_w, scale_h)
             
             # 3. Calculate tx to center horizontally
             tx = (target_w - (orig_w * scale_factor)) / 2
-            ty = 35 # User's preferred vertical position
+            ty = ty_val
             
             # Apply transformation
             op = Transformation().scale(scale_factor).translate(tx=tx, ty=ty)
@@ -274,13 +284,13 @@ def merge_pdfs(summary_path, resume_path, output_path):
     # The user said "Every page". 
     # Let's apply the overlay ONLY to the resume pages.
     
-    # Add Summary (With Overlay and Scaling)
+    # Add Summary (Using previous stable scaling/position)
     reader_summary = PdfReader(summary_path)
-    add_pages_with_overlay(reader_summary)
+    add_pages_with_overlay(reader_summary, base_scale=0.83, ty_val=35)
 
-    # Add Resume (With Overlay and Scaling)
+    # Add Resume (Using new scaling/position to avoid header overlap)
     reader_resume = PdfReader(resume_path)
-    add_pages_with_overlay(reader_resume)
+    add_pages_with_overlay(reader_resume, base_scale=0.78, ty_val=45)
 
     with open(output_path, "wb") as f:
         writer.write(f)
